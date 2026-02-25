@@ -1,19 +1,50 @@
 import { writeFileSync } from "node:fs";
 import { generateMarkdown, getFilePath } from "./generate-markdown.js";
+import type { Issue } from "./generate-markdown.js";
 
-/**
- * Action のメインロジック
- * @param {object} context - Action の実行コンテキスト
- * @param {object} context.issue - GitHub Issue 情報
- * @param {object} context.inputs - Action inputs
- * @param {object} context.repo - リポジトリ情報 { owner, repo }
- * @param {object} deps - 依存関係（テスト時にモック可能）
- * @param {Function} deps.exec - コマンド実行関数
- * @param {object} deps.octokit - GitHub API クライアント
- * @param {Function} [deps.writeFile] - ファイル書き出し関数
- * @returns {Promise<{branchName: string, filePath: string, pullRequestUrl: string}>}
- */
-export async function runAction(context, deps) {
+export interface ActionContext {
+  issue: Issue;
+  inputs: {
+    outputDir: string;
+    branchPrefix: string;
+    commitType: string;
+    baseBranch: string;
+  };
+  repo: {
+    owner: string;
+    repo: string;
+  };
+}
+
+export interface ActionDeps {
+  exec: (cmd: string, args: string[]) => Promise<number>;
+  octokit: {
+    rest: {
+      pulls: {
+        create: (params: {
+          owner: string;
+          repo: string;
+          title: string;
+          head: string;
+          base: string;
+          body: string;
+        }) => Promise<{ data: { html_url: string } }>;
+      };
+    };
+  };
+  writeFile?: (path: string, content: string) => void;
+}
+
+export interface ActionResult {
+  branchName: string;
+  filePath: string;
+  pullRequestUrl: string;
+}
+
+export async function runAction(
+  context: ActionContext,
+  deps: ActionDeps,
+): Promise<ActionResult> {
   const { issue, inputs, repo } = context;
   const { exec, octokit, writeFile = writeFileSync } = deps;
 

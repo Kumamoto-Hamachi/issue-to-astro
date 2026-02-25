@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runAction } from "../src/action.js";
+import type { ActionContext, ActionDeps } from "../src/action.js";
 
 describe("runAction", () => {
-  let mockContext;
-  let mockExec;
-  let mockOctokit;
-  let mockWriteFile;
+  let mockContext: ActionContext;
+  let mockExec: ActionDeps["exec"];
+  let mockOctokit: ActionDeps["octokit"];
+  let mockWriteFile: ActionDeps["writeFile"];
 
   beforeEach(() => {
     mockContext = {
@@ -68,7 +69,9 @@ describe("runAction", () => {
   it("git コマンドを正しい順序で実行する", async () => {
     await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
-    const calls = mockExec.mock.calls.map(([cmd, args]) => [cmd, ...args].join(" "));
+    const calls = (mockExec as ReturnType<typeof vi.fn>).mock.calls.map(
+      ([cmd, args]: [string, string[]]) => [cmd, ...args].join(" "),
+    );
 
     expect(calls).toEqual([
       "git checkout -b content/issue-42",
@@ -93,18 +96,18 @@ describe("runAction", () => {
   });
 
   it("Markdown ファイルの内容を writeFile コールバックで書き出す", async () => {
-    const writtenFiles = {};
-    const mockWriteFile = vi.fn((path, content) => {
+    const writtenFiles: Record<string, string> = {};
+    const localMockWriteFile = vi.fn((path: string, content: string) => {
       writtenFiles[path] = content;
     });
 
     await runAction(mockContext, {
       exec: mockExec,
       octokit: mockOctokit,
-      writeFile: mockWriteFile,
+      writeFile: localMockWriteFile,
     });
 
-    expect(mockWriteFile).toHaveBeenCalledWith(
+    expect(localMockWriteFile).toHaveBeenCalledWith(
       "src/content/posts/42.md",
       expect.stringContaining('title: "新しい記事のタイトル"'),
     );

@@ -6,6 +6,6 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN corepack enable && pnpm install --frozen-lockfile --prod
 
-COPY src/ ./src/
+COPY dist/src/ ./dist/src/
 
-ENTRYPOINT ["node", "/action/src/index.js"]
+ENTRYPOINT ["node", "/action/dist/src/index.js"]

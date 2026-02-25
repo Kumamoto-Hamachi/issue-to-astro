@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "description": "GitHub Issue を close したときに Markdown ファイルを自動生成し PR を作成する GitHub Action",
-  "main": "src/index.js",
+  "main": "dist/src/index.js",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -14,6 +15,8 @@
     "node": ">=24.0.0"
   },
   "devDependencies": {
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
   "dependencies": {
