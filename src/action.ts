@@ -46,6 +46,10 @@ export async function runAction(
   // Docker コンテナ内の所有者不一致を回避
   await exec("git", ["config", "--global", "safe.directory", "/github/workspace"]);
 
+  // Docker コンテナ内の git ユーザー設定
+  await exec("git", ["config", "user.name", "github-actions[bot]"]);
+  await exec("git", ["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"]);
+
   // ブランチ作成
   await exec("git", ["checkout", "-b", branchName]);
 

@@ -75,6 +75,8 @@ describe("runAction", () => {
 
     expect(calls).toEqual([
       "git config --global safe.directory /github/workspace",
+      "git config user.name github-actions[bot]",
+      "git config user.email 41898282+github-actions[bot]@users.noreply.github.com",
       "git checkout -b content/issue-42",
       "mkdir -p src/content/posts",
       "git add src/content/posts/42.md",
