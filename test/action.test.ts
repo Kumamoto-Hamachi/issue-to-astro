@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runAction } from "../src/action.js";
-import type { ActionContext, ActionDeps } from "../src/action.js";
+import type { ActionContext, ActionDeps, Octokit } from "../src/action.js";
 
 describe("runAction", () => {
   let mockContext: ActionContext;
@@ -43,7 +43,7 @@ describe("runAction", () => {
           }),
         },
       },
-    };
+    } as unknown as Octokit;
   });
 
   it("正しいブランチ名を返す", async () => {

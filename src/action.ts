@@ -1,6 +1,9 @@
 import { writeFileSync } from "node:fs";
+import type * as github from "@actions/github";
 import { generateMarkdown, getFilePath } from "./generate-markdown.js";
 import type { Issue } from "./generate-markdown.js";
+
+export type Octokit = ReturnType<typeof github.getOctokit>;
 
 export interface ActionContext {
   issue: Issue;
@@ -18,20 +21,7 @@ export interface ActionContext {
 
 export interface ActionDeps {
   exec: (cmd: string, args: string[]) => Promise<number>;
-  octokit: {
-    rest: {
-      pulls: {
-        create: (params: {
-          owner: string;
-          repo: string;
-          title: string;
-          head: string;
-          base: string;
-          body: string;
-        }) => Promise<{ data: { html_url: string } }>;
-      };
-    };
-  };
+  octokit: Octokit;
   writeFile?: (path: string, content: string) => void;
 }
 
