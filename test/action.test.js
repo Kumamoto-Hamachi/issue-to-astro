@@ -5,6 +5,7 @@ describe("runAction", () => {
   let mockContext;
   let mockExec;
   let mockOctokit;
+  let mockWriteFile;
 
   beforeEach(() => {
     mockContext = {
@@ -29,6 +30,8 @@ describe("runAction", () => {
 
     mockExec = vi.fn().mockResolvedValue(0);
 
+    mockWriteFile = vi.fn();
+
     mockOctokit = {
       rest: {
         pulls: {
@@ -43,19 +46,19 @@ describe("runAction", () => {
   });
 
   it("正しいブランチ名を返す", async () => {
-    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit });
+    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
     expect(result.branchName).toBe("content/issue-42");
   });
 
   it("正しいファイルパスを返す", async () => {
-    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit });
+    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
     expect(result.filePath).toBe("src/content/posts/42.md");
   });
 
   it("PR の URL を返す", async () => {
-    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit });
+    const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
     expect(result.pullRequestUrl).toBe(
       "https://github.com/kumamoto/my-blog/pull/1",
@@ -63,7 +66,7 @@ describe("runAction", () => {
   });
 
   it("git コマンドを正しい順序で実行する", async () => {
-    await runAction(mockContext, { exec: mockExec, octokit: mockOctokit });
+    await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
     const calls = mockExec.mock.calls.map(([cmd, args]) => [cmd, ...args].join(" "));
 
@@ -77,7 +80,7 @@ describe("runAction", () => {
   });
 
   it("PR を正しいパラメータで作成する", async () => {
-    await runAction(mockContext, { exec: mockExec, octokit: mockOctokit });
+    await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
     expect(mockOctokit.rest.pulls.create).toHaveBeenCalledWith({
       owner: "kumamoto",
