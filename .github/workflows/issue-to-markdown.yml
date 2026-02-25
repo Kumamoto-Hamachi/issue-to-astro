@@ -1,0 +1,17 @@
+name: Issue to Markdown
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  create-md:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./
+        with:
+          output-dir: "src/content/posts"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
