@@ -27,6 +27,7 @@ describe("runAction", () => {
         owner: "kumamoto",
         repo: "my-blog",
       },
+      token: "fake-token",
     };
 
     mockExec = vi.fn().mockResolvedValue(0);
@@ -77,6 +78,7 @@ describe("runAction", () => {
       "git config --global safe.directory /github/workspace",
       "git config user.name github-actions[bot]",
       "git config user.email 41898282+github-actions[bot]@users.noreply.github.com",
+      "git remote set-url origin https://x-access-token:fake-token@github.com/kumamoto/my-blog.git",
       "git checkout -b content/issue-42",
       "mkdir -p src/content/posts",
       "git add src/content/posts/42.md",

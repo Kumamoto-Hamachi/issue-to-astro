@@ -17,6 +17,7 @@ export interface ActionContext {
     owner: string;
     repo: string;
   };
+  token: string;
 }
 
 export interface ActionDeps {
@@ -49,6 +50,10 @@ export async function runAction(
   // Docker コンテナ内の git ユーザー設定
   await exec("git", ["config", "user.name", "github-actions[bot]"]);
   await exec("git", ["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"]);
+
+  // GITHUB_TOKEN で認証できるよう remote URL を設定
+  const authUrl = `https://x-access-token:${context.token}@github.com/${repo.owner}/${repo.repo}.git`;
+  await exec("git", ["remote", "set-url", "origin", authUrl]);
 
   // ブランチ作成
   await exec("git", ["checkout", "-b", branchName]);
