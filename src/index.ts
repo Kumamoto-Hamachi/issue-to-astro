@@ -35,6 +35,7 @@ async function main(): Promise<void> {
         baseBranch: core.getInput("base-branch") || "main",
       },
       repo: github.context.repo,
+      token,
     };
 
     const execFn = (cmd: string, args: string[]): Promise<number> =>
