@@ -74,6 +74,7 @@ describe("runAction", () => {
     );
 
     expect(calls).toEqual([
+      "git config --global safe.directory /github/workspace",
       "git checkout -b content/issue-42",
       "mkdir -p src/content/posts",
       "git add src/content/posts/42.md",
