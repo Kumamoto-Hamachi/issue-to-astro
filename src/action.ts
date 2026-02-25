@@ -43,6 +43,9 @@ export async function runAction(
   const markdown = generateMarkdown(issue);
   const commitMessage = `${inputs.commitType}(content): add post from issue #${issue.number}`;
 
+  // Docker コンテナ内の所有者不一致を回避
+  await exec("git", ["config", "--global", "safe.directory", "/github/workspace"]);
+
   // ブランチ作成
   await exec("git", ["checkout", "-b", branchName]);
 
