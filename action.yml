@@ -1,0 +1,37 @@
+name: "Issue to Astro"
+description: "GitHub Issue を close したときに Markdown ファイルを自動生成し PR を作成する"
+author: "kumamoto"
+
+inputs:
+  output-dir:
+    description: "Markdown ファイルの出力先ディレクトリ"
+    required: false
+    default: "src/content/posts"
+  branch-prefix:
+    description: "作成するブランチのプレフィックス"
+    required: false
+    default: "content/issue-"
+  commit-type:
+    description: "Conventional Commit のタイプ"
+    required: false
+    default: "docs"
+  base-branch:
+    description: "PR のベースブランチ"
+    required: false
+    default: "main"
+
+outputs:
+  pull-request-url:
+    description: "作成された PR の URL"
+  branch-name:
+    description: "作成されたブランチ名"
+  file-path:
+    description: "生成された Markdown ファイルのパス"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+
+branding:
+  icon: "file-text"
+  color: "purple"
