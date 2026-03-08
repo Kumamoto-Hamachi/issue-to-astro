@@ -56,7 +56,7 @@ describe("runAction", () => {
   it("正しいファイルパスを返す", async () => {
     const result = await runAction(mockContext, { exec: mockExec, octokit: mockOctokit, writeFile: mockWriteFile });
 
-    expect(result.filePath).toBe("src/content/posts/42.mdx");
+    expect(result.filePath).toBe("src/content/posts/42/index.mdx");
   });
 
   it("PR の URL を返す", async () => {
@@ -80,8 +80,8 @@ describe("runAction", () => {
       "git config user.email 41898282+github-actions[bot]@users.noreply.github.com",
       "git remote set-url origin https://x-access-token:fake-token@github.com/kumamoto/my-blog.git",
       "git checkout -b content/issue-42",
-      "mkdir -p src/content/posts",
-      "git add src/content/posts/42.mdx",
+      "mkdir -p src/content/posts/42",
+      "git add src/content/posts/42/index.mdx",
       "git commit -m docs(content): add post from issue #42",
       "git push origin content/issue-42",
     ]);
@@ -113,10 +113,10 @@ describe("runAction", () => {
     });
 
     expect(localMockWriteFile).toHaveBeenCalledWith(
-      "src/content/posts/42.mdx",
+      "src/content/posts/42/index.mdx",
       expect.stringContaining('title: "新しい記事のタイトル"'),
     );
-    expect(writtenFiles["src/content/posts/42.mdx"]).toContain(
+    expect(writtenFiles["src/content/posts/42/index.mdx"]).toContain(
       "Issue の本文がここに入ります。",
     );
   });

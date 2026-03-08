@@ -1,4 +1,5 @@
 import { writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import type * as github from "@actions/github";
 import { generateMarkdown, getFilePath } from "./generate-markdown.js";
 import type { Issue } from "./generate-markdown.js";
@@ -59,7 +60,7 @@ export async function runAction(
   await exec("git", ["checkout", "-b", branchName]);
 
   // ディレクトリ作成 & ファイル書き出し
-  await exec("mkdir", ["-p", inputs.outputDir]);
+  await exec("mkdir", ["-p", dirname(filePath)]);
   writeFile(filePath, markdown);
 
   // コミット & プッシュ
