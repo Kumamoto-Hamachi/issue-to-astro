@@ -83,7 +83,7 @@ describe("runAction", () => {
       "mkdir -p src/content/posts/42",
       "git add src/content/posts/42",
       "git commit -m docs(content): add post from issue #42",
-      "git push origin content/issue-42",
+      "git push --force origin content/issue-42",
     ]);
   });
 

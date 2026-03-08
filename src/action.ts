@@ -81,7 +81,7 @@ export async function runAction(
   // コミット & プッシュ（ディレクトリごと add）
   await exec("git", ["add", imageDir]);
   await exec("git", ["commit", "-m", commitMessage]);
-  await exec("git", ["push", "origin", branchName]);
+  await exec("git", ["push", "--force", "origin", branchName]);
 
   // PR 作成
   const { data: pr } = await octokit.rest.pulls.create({
