@@ -81,7 +81,7 @@ describe("runAction", () => {
       "git remote set-url origin https://x-access-token:fake-token@github.com/kumamoto/my-blog.git",
       "git checkout -b content/issue-42",
       "mkdir -p src/content/posts/42",
-      "git add src/content/posts/42/index.mdx",
+      "git add src/content/posts/42",
       "git commit -m docs(content): add post from issue #42",
       "git push origin content/issue-42",
     ]);
@@ -98,6 +98,46 @@ describe("runAction", () => {
       base: "main",
       body: "Closes #42",
     });
+  });
+
+  it("画像付き Issue で画像ファイルも writeFile で書き出す", async () => {
+    const imageBuffer = Buffer.from(new ArrayBuffer(8));
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+      headers: new Headers({ "content-type": "image/png" }),
+    });
+
+    const contextWithImage = {
+      ...mockContext,
+      issue: {
+        ...mockContext.issue,
+        body: "本文 ![screenshot](https://example.com/photo.png) です",
+      },
+    };
+
+    const writeCalls: Array<[string, string | Buffer]> = [];
+    const localMockWriteFile = vi.fn((path: string, content: string | Buffer) => {
+      writeCalls.push([path, content]);
+    });
+
+    await runAction(contextWithImage, {
+      exec: mockExec,
+      octokit: mockOctokit,
+      writeFile: localMockWriteFile,
+      fetch: mockFetch,
+    });
+
+    // MDXファイルが書き出される
+    expect(localMockWriteFile).toHaveBeenCalledWith(
+      "src/content/posts/42/index.mdx",
+      expect.stringContaining("![screenshot](./image-001.png)"),
+    );
+    // 画像ファイルが書き出される
+    expect(localMockWriteFile).toHaveBeenCalledWith(
+      "src/content/posts/42/image-001.png",
+      expect.any(Buffer),
+    );
   });
 
   it("Markdown ファイルの内容を writeFile コールバックで書き出す", async () => {

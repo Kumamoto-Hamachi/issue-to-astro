@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import type * as github from "@actions/github";
 import { generateMarkdown, getFilePath } from "./generate-markdown.js";
 import type { Issue } from "./generate-markdown.js";
+import { downloadImages } from "./download-images.js";
 
 export type Octokit = ReturnType<typeof github.getOctokit>;
 
@@ -24,7 +25,8 @@ export interface ActionContext {
 export interface ActionDeps {
   exec: (cmd: string, args: string[]) => Promise<number>;
   octokit: Octokit;
-  writeFile?: (path: string, content: string) => void;
+  writeFile?: (path: string, content: string | Buffer) => void;
+  fetch?: typeof globalThis.fetch;
 }
 
 export interface ActionResult {
@@ -38,12 +40,19 @@ export async function runAction(
   deps: ActionDeps,
 ): Promise<ActionResult> {
   const { issue, inputs, repo } = context;
-  const { exec, octokit, writeFile = writeFileSync } = deps;
+  const { exec, octokit, writeFile = writeFileSync, fetch: fetchFn = globalThis.fetch } = deps;
 
   const branchName = `${inputs.branchPrefix}${issue.number}`;
   const filePath = getFilePath(inputs.outputDir, issue.number);
-  const markdown = generateMarkdown(issue);
   const commitMessage = `${inputs.commitType}(content): add post from issue #${issue.number}`;
+
+  // 画像ダウンロード処理
+  const imageResult = issue.body
+    ? await downloadImages(issue.body, { fetch: fetchFn })
+    : { body: issue.body ?? "", images: new Map<string, Buffer>() };
+
+  const processedIssue = { ...issue, body: imageResult.body };
+  const markdown = generateMarkdown(processedIssue);
 
   // Docker コンテナ内の所有者不一致を回避
   await exec("git", ["config", "--global", "safe.directory", "/github/workspace"]);
@@ -60,11 +69,17 @@ export async function runAction(
   await exec("git", ["checkout", "-b", branchName]);
 
   // ディレクトリ作成 & ファイル書き出し
-  await exec("mkdir", ["-p", dirname(filePath)]);
+  const imageDir = dirname(filePath);
+  await exec("mkdir", ["-p", imageDir]);
   writeFile(filePath, markdown);
 
-  // コミット & プッシュ
-  await exec("git", ["add", filePath]);
+  // 画像ファイル書き出し
+  for (const [filename, buffer] of imageResult.images) {
+    writeFile(`${imageDir}/${filename}`, buffer);
+  }
+
+  // コミット & プッシュ（ディレクトリごと add）
+  await exec("git", ["add", imageDir]);
   await exec("git", ["commit", "-m", commitMessage]);
   await exec("git", ["push", "origin", branchName]);
 
