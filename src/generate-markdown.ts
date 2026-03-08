@@ -28,5 +28,5 @@ ${content}`;
 
 export function getFilePath(outputDir: string, issueNumber: number): string {
   const dir = outputDir.replace(/\/+$/, "");
-  return `${dir}/${issueNumber}.mdx`;
+  return `${dir}/${issueNumber}/index.mdx`;
 }
