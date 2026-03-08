@@ -1,10 +1,10 @@
 name: "Issue to Astro"
-description: "GitHub Issue を close したときに Markdown ファイルを自動生成し PR を作成する"
+description: "GitHub Issue を close したときに MDX ファイルを自動生成し PR を作成する"
 author: "kumamoto"
 
 inputs:
   output-dir:
-    description: "Markdown ファイルの出力先ディレクトリ"
+    description: "MDX ファイルの出力先ディレクトリ"
     required: false
     default: "src/content/posts"
   branch-prefix:
@@ -26,7 +26,7 @@ outputs:
   branch-name:
     description: "作成されたブランチ名"
   file-path:
-    description: "生成された Markdown ファイルのパス"
+    description: "生成された MDX ファイルのパス"
 
 runs:
   using: "docker"
